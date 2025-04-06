@@ -25,5 +25,14 @@ jobs:
             cd /home/azureuser/penugasan1-netics  # ganti path sesuai tempat kamu clone repo-nya di VM
             git pull origin main
             npm install
+
+            mkdir -p /home/azureuser/penugasan1-netics
+            cd /home/azureuser/penugasan1-netics
+      
+            if [ ! -d ".git" ]; then
+              git clone https://github.com/hihanghoeng33/penugasan1-netics.git .
+            else
+              git pull origin main
+            fi
             pm2 restart netics || pm2 start index.js --name netics
           EOF
