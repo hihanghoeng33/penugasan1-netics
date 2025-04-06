@@ -2,41 +2,33 @@ name: Deploy to Azure VM
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup SSH key
+      - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          chmod 700 ~/.ssh
           ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy to VM
+      - name: Deploy to VPS
         run: |
           ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
             sudo apt-get update
-            curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-            sudo apt-get install -y nodejs build-essential
-            sudo npm install -g pm2
-            mkdir -p /home/${USER}/penugasan1-netics
-            cd /home/${USER}/penugasan1-netics
-
-            if [ ! -d ".git" ]; then
-              git clone git@github.com:hihanghoeng33/penugasan1-netics.git .
+            sudo apt-get install -y git docker.io docker-compose
+            cd ~
+            if [ ! -d "penugasan1-netics" ]; then
+              git clone https://github.com/hihanghoeng33/penugasan1-netics.git
             else
+              cd penugasan1-netics
               git pull origin main
             fi
-
-            npm install
-            pm2 restart netics || pm2 start index.js --name netics
+            cd penugasan1-netics
+            docker-compose down
+            docker-compose up -d --build
           EOF
