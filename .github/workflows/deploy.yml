@@ -1,4 +1,4 @@
-name: Deploy with Docker
+name: Deploy with Docker Run
 
 on:
   push:
@@ -17,7 +17,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy to VPS
+      - name: Deploy to VPS via Docker Run
         run: |
           ssh -i ~/.ssh/id_rsa ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
             if [ ! -d "penugasan1-netics" ]; then
@@ -25,6 +25,9 @@ jobs:
             fi
             cd penugasan1-netics
             git pull origin main
-            docker compose down || true
-            docker compose up -d --build
+
+            docker build -t netics-app .
+            docker stop netics-container || true
+            docker rm netics-container || true
+            docker run -d --name netics-container -p 80:3000 netics-app
           EOF
