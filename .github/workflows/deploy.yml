@@ -18,21 +18,25 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
+          chmod 700 ~/.ssh
+          ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy to VM
         run: |
-          ssh -o StrictHostKeyChecking=no -i key.pem $USERNAME@$HOST << 'EOF'
-          sudo apt-get update
-          curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-          sudo apt-get install -y nodejs build-essential
-          sudo npm install -g pm2
-          mkdir -p /home/azureuser/penugasan1-netics
-          cd /home/azureuser/penugasan1-netics
-          if [ ! -d ".git" ]; then
-            git clone git@github.com:hihanghoeng33/penugasan1-netics.git .
-          else
-            git pull origin main
-          fi
-          npm install
-          pm2 restart netics || pm2 start index.js --name netics
+          ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
+            sudo apt-get update
+            curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+            sudo apt-get install -y nodejs build-essential
+            sudo npm install -g pm2
+            mkdir -p /home/${USER}/penugasan1-netics
+            cd /home/${USER}/penugasan1-netics
+
+            if [ ! -d ".git" ]; then
+              git clone git@github.com:hihanghoeng33/penugasan1-netics.git .
+            else
+              git pull origin main
+            fi
+
+            npm install
+            pm2 restart netics || pm2 start index.js --name netics
           EOF
