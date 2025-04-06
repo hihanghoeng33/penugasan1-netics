@@ -15,7 +15,8 @@ jobs:
 
       - name: Deploy via SSH
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
+          ssh -i ${{secrets.SSH_KEY}} ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
+            mkdir -p penugasan1-netics
             cd /home/azureuser/penugasan1-netics || git clone git@github.com:hihanghoeng33/penugasan1-netics.git /home/azureuser/penugasan1-netics && cd /home/azureuser/penugasan1-netics
             git pull origin main
             npm install
