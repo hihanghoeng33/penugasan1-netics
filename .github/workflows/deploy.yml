@@ -18,21 +18,19 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan github.com >> ~/.ssh/known_hosts  # Add this line to fix SSH key verification
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nodejs npm
+          sudo npm install -g pm2
 
       - name: Deploy to VM
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
-            cd /home/azureuser/penugasan1-netics  # ganti path sesuai tempat kamu clone repo-nya di VM
+            cd /home/azureuser/penugasan1-netics  # Change path to where you clone the repo on VM
             git pull origin main
-            sudo apt-get install -y nodejs
             npm install
-            sudo npm install -g pm2
-            mkdir -p /home/azureuser/penugasan1-netics
-            cd /home/azureuser/penugasan1-netics
-            if [ ! -d ".git" ]; then
-              git clone git@github.com:hihanghoeng33/penugasan1-netics.git
-            else
-              git pull origin main
-            fi
             pm2 restart netics || pm2 start index.js --name netics
           EOF
