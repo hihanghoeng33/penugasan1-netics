@@ -1,4 +1,4 @@
-name: Deploy to VPS
+name: Deploy with Docker
 
 on:
   push:
@@ -10,24 +10,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup SSH key
+      - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
 
-
-      - name: Deploy via SSH
+      - name: Deploy to VPS
         run: |
-           ssh -i ~/.ssh/id_rsa ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
-              sudo apt-get update -y && sudo apt-get upgrade -y
-              sudo apt-get install -y npm pm2
-              cd /home/azureuser/penugasan1-netics || git clone git@github.com:hihanghoeng33/penugasan1-netics.git /home/azureuser/penugasan1-netics && cd /home/azureuser/penugasan1-netics
-              git pull origin main
-              npm install
-              pm2 restart netics || pm2 start index.js --name netics
-            EOF
+          ssh -i ~/.ssh/id_rsa ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
+            if [ ! -d "penugasan1-netics" ]; then
+              git clone https://github.com/hihanghoeng33/penugasan1-netics.git
+            fi
+            cd penugasan1-netics
+            git pull origin main
+            docker compose down || true
+            docker compose up -d --build
+          EOF
