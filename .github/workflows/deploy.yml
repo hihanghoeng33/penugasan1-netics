@@ -24,15 +24,17 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
             cd /home/azureuser/penugasan1-netics  # ganti path sesuai tempat kamu clone repo-nya di VM
             git pull origin main
-            npm install
+            sudo apt-get install -y nodejs
+            sudo npm install -g pm2
 
             mkdir -p /home/azureuser/penugasan1-netics
             cd /home/azureuser/penugasan1-netics
       
             if [ ! -d ".git" ]; then
-              git clone https://github.com/hihanghoeng33/penugasan1-netics.git .
+              git clone https://github.com/hihanghoeng33/penugasan1-netics.git
             else
               git pull origin main
             fi
+            npm install
             pm2 restart netics || pm2 start index.js --name netics
           EOF
