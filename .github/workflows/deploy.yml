@@ -24,6 +24,8 @@ jobs:
       - name: Deploy via SSH
         run: |
            ssh -i ~/.ssh/id_rsa ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
+              sudo apt-get update -y && sudo apt-get upgrade -y
+              sudo apt-get install -y npm pm2
               cd /home/azureuser/penugasan1-netics || git clone git@github.com:hihanghoeng33/penugasan1-netics.git /home/azureuser/penugasan1-netics && cd /home/azureuser/penugasan1-netics
               git pull origin main
               npm install
