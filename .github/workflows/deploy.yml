@@ -29,5 +29,5 @@ jobs:
             docker build -t netics-app .
             docker stop netics-container || true
             docker rm netics-container || true
-            docker run -d --name netics-container -p 80:3000 netics-app
+            docker run -d --name netics-container -p 8000:3000 netics-app
           EOF
