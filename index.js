@@ -29,7 +29,8 @@ const server = https.createServer((req, res)=>{
             nrp: '5025231156',
             status: 'OK',
             timestamp: currtime,
-            uptime: `${servertime} seconds`
+            uptime: `${servertime} seconds`,
+            departemen: 'Teknik Informatika',
         };
         res.writeHead(200, {'Content-Type': 'application/json'});
         res.end(JSON.stringify(data));
